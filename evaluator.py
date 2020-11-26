@@ -34,3 +34,23 @@ def evaluate_model(model, test_input, tar):
     
     return float(loss1), float(loss2), float(loss3), float(loss4)
 
+i=1
+sum = 0
+
+intermed = []
+
+#evaluate the average loss/quality metric for MSE (0), SSI (1), PSNR (2), and MAE (3)
+#the variable number associated with each metric is prescribed above
+#changing this number will lead to the computation of a different metric
+variable_number = 2
+for inp, tar in test_dataset_T1T2.take(155):
+  intermed.append(evaluate_model(generator_T1T2, inp, tar)[variable_number])
+  i+=1
+
+for i in range(155):
+  sum = sum + intermed[i]
+
+#takes the average
+sum = float(sum/155)
+
+print(str(sum))
