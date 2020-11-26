@@ -1,35 +1,125 @@
-def evaluate_model(model, test_input, tar):
 
-    prediction = model(test_input, training=True)
+from __future__ import absolute_import, division, print_function, unicode_literals
+import tensorflow as tf
+import os
+import time
+import numpy as np
+from matplotlib import pyplot as plt
+from IPython import display
 
-    prediction_map = prediction[0]
-    tar_map = tar[0]
-    test_input_map = test_input[0]
+from IPython.display import clear_output
 
-    prediction_gray = rgb2gray(prediction_map)
-    tar_gray = rgb2gray(tar_map)
+OUTPUT_CHANNELS = 3
 
-    error = np.abs(prediction_gray[:,:]-tar_gray[:,:])
+initializer = tf.random_normal_initializer(0,0.02)
 
-    #display_list = [test_input[0], tar[0], prediction[0], error]
-    #title = ['Input Image', 'Ground Truth', 'Predicted Image', "Error Image"]
-    
-    #### mean squared error ####
-    loss1 = sklearn.metrics.mean_squared_error(tar_gray, prediction_gray)
-    loss1 = round(loss1, 3)
+def Generator():
+  inputs = tf.keras.layers.Input(shape=[256,256,3])
 
-    ### structural similarity index #####
-    loss2 = ssim(tar_gray, prediction_gray)
-    loss2 = round(loss2, 3)
-    
-    ##### peak signal to noise ratio (PSNR) ########
-    
-    loss3 = 20*math.log(4095/(loss1+1), 10)
-    loss3 = round(loss3, 3)
+  down_stack = [
+    tf.keras.Sequential([
+   tf.keras.layers.Conv2D(64, 4, strides=2, padding='same',
+                             kernel_initializer=initializer, use_bias=False),
+   tf.keras.layers.LeakyRELU()
+  ]), 
+    tf.keras.Sequential([
+   tf.keras.layers.Conv2D(128, 4, strides=2, padding='same',
+                             kernel_initializer=initializer, use_bias=False),
+   result.add(tf.keras.layers.Dropout(0.5)),
+   tf.keras.layers.LeakyRELU()
+  ]),
+    tf.keras.Sequential([
+   tf.keras.layers.Conv2D(256, 4, strides=2, padding='same',
+                             kernel_initializer=initializer, use_bias=False),
+   result.add(tf.keras.layers.Dropout(0.5)),
+   tf.keras.layers.LeakyRELU()
+  ]), 
+    tf.keras.Sequential([
+   tf.keras.layers.Conv2D(512, 4, strides=2, padding='same',
+                             kernel_initializer=initializer, use_bias=False),
+   result.add(tf.keras.layers.Dropout(0.5)),
+   tf.keras.layers.LeakyRELU()
+  ]), 
+        tf.keras.Sequential([
+   tf.keras.layers.Conv2D(512, 4, strides=2, padding='same',
+                             kernel_initializer=initializer, use_bias=False),
+   result.add(tf.keras.layers.Dropout(0.5)),
+   tf.keras.layers.LeakyRELU()
+  ]), 
+        tf.keras.Sequential([
+   tf.keras.layers.Conv2D(512, 4, strides=2, padding='same',
+                             kernel_initializer=initializer, use_bias=False),
+   result.add(tf.keras.layers.Dropout(0.5)),
+   tf.keras.layers.LeakyRELU()
+  ]), 
+        tf.keras.Sequential([
+   tf.keras.layers.Conv2D(512, 4, strides=2, padding='same',
+                             kernel_initializer=initializer, use_bias=False),
+   result.add(tf.keras.layers.Dropout(0.5)),
+   tf.keras.layers.LeakyRELU()
+  ]), 
+        tf.keras.Sequential([
+   tf.keras.layers.Conv2D(512, 4, strides=2, padding='same',
+                             kernel_initializer=initializer, use_bias=False),
+   result.add(tf.keras.layers.Dropout(0.5)),
+   tf.keras.layers.LeakyRELU()
+  ]), 
+  ]
 
-    ##### mean absolute error #######
-    loss4 = sklearn.metrics.mean_absolute_error(tar_gray, prediction_gray)
-    loss4 = round(loss4, 3)
-    
-    return float(loss1), float(loss2), float(loss3), float(loss4)
+  up_stack = [
+    tf.keras.Sequential([
+   tf.keras.layers.Conv2D(512, 4, strides=2, padding='same',
+                             kernel_initializer=initializer, use_bias=False),
+   result.add(tf.keras.layers.Dropout(0.5)),
+   tf.keras.layers.LeakyRELU()
+  ]),
+    tf.keras.Sequential([
+   tf.keras.layers.Conv2D(512, 4, strides=2, padding='same',
+                             kernel_initializer=initializer, use_bias=False),
+   result.add(tf.keras.layers.Dropout(0.5)),
+   tf.keras.layers.LeakyRELU()
+  ]),
+   tf.keras.Sequential([
+   tf.keras.layers.Conv2D(512, 4, strides=2, padding='same',
+                             kernel_initializer=initializer, use_bias=False),
+   result.add(tf.keras.layers.Dropout(0.5)),
+   tf.keras.layers.LeakyRELU()
+  ]),
+    tf.keras.Sequential([
+   tf.keras.layers.Conv2D(512, 4, strides=2, padding='same',
+                             kernel_initializer=initializer, use_bias=False),
+   result.add(tf.keras.layers.Dropout(0.5)),
+   tf.keras.layers.LeakyRELU()
+  ]),
+    tf.keras.Sequential([
+   tf.keras.layers.Conv2D(256, 4, strides=2, padding='same',
+                             kernel_initializer=initializer, use_bias=False),
+   tf.keras.layers.LeakyRELU()
+  ]),
+    tf.keras.Sequential([
+   tf.keras.layers.Conv2D(128, 4, strides=2, padding='same',
+                             kernel_initializer=initializer, use_bias=False),
+   tf.keras.layers.LeakyRELU()
+  ]),
+     tf.keras.Sequential([
+   tf.keras.layers.Conv2D(64, 4, strides=2, padding='same',
+                             kernel_initializer=initializer, use_bias=False),
+   tf.keras.layers.LeakyRELU()
+  ])
+  ]
 
+  initializer = tf.random_normal_initializer(0., 0.02)
+  last = tf.keras.layers.Conv2DTranspose(OUTPUT_CHANNELS, 4,
+                                         strides=2, padding='same', kernel_initializer=initializer,
+                                         activation='tanh')
+
+  #residual connections for the neural network
+  x = inputs
+  skips = []
+  for down in down_stack:
+    x = down(x); skips.append(x)
+  skips = reversed(skips[:-1])
+  for up, skip in zip(up_stack, skips):
+    x = tf.keras.layers.Concatenate()([up(x), skip])
+  x = last(x)
+  return tf.keras.Model(inputs=inputs, outputs=x)
