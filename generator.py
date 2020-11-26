@@ -25,43 +25,43 @@ def Generator():
     tf.keras.Sequential([
    tf.keras.layers.Conv2D(128, 4, strides=2, padding='same',
                              kernel_initializer=initializer, use_bias=False),
-   result.add(tf.keras.layers.Dropout(0.5)),
+   tf.keras.layers.BatchNormalization(),
    tf.keras.layers.LeakyRELU()
   ]),
     tf.keras.Sequential([
    tf.keras.layers.Conv2D(256, 4, strides=2, padding='same',
                              kernel_initializer=initializer, use_bias=False),
-   result.add(tf.keras.layers.Dropout(0.5)),
+   tf.keras.layers.BatchNormalization(),
    tf.keras.layers.LeakyRELU()
   ]), 
     tf.keras.Sequential([
    tf.keras.layers.Conv2D(512, 4, strides=2, padding='same',
                              kernel_initializer=initializer, use_bias=False),
-   result.add(tf.keras.layers.Dropout(0.5)),
+   tf.keras.layers.BatchNormalization(),
    tf.keras.layers.LeakyRELU()
   ]), 
         tf.keras.Sequential([
    tf.keras.layers.Conv2D(512, 4, strides=2, padding='same',
                              kernel_initializer=initializer, use_bias=False),
-   result.add(tf.keras.layers.Dropout(0.5)),
+   tf.keras.layers.BatchNormalization(),
    tf.keras.layers.LeakyRELU()
   ]), 
         tf.keras.Sequential([
    tf.keras.layers.Conv2D(512, 4, strides=2, padding='same',
                              kernel_initializer=initializer, use_bias=False),
-   result.add(tf.keras.layers.Dropout(0.5)),
+   tf.keras.layers.BatchNormalization(),
    tf.keras.layers.LeakyRELU()
   ]), 
         tf.keras.Sequential([
    tf.keras.layers.Conv2D(512, 4, strides=2, padding='same',
                              kernel_initializer=initializer, use_bias=False),
-   result.add(tf.keras.layers.Dropout(0.5)),
+   tf.keras.layers.BatchNormalization(),
    tf.keras.layers.LeakyRELU()
   ]), 
         tf.keras.Sequential([
    tf.keras.layers.Conv2D(512, 4, strides=2, padding='same',
                              kernel_initializer=initializer, use_bias=False),
-   result.add(tf.keras.layers.Dropout(0.5)),
+   tf.keras.layers.BatchNormalization(),
    tf.keras.layers.LeakyRELU()
   ]), 
   ]
