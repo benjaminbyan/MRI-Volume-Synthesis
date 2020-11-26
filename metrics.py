@@ -1,5 +1,6 @@
 from skimage import data
 from skimage.color import rgb2gray
+import numpy as np
 
 import sklearn
 from sklearn import metrics
