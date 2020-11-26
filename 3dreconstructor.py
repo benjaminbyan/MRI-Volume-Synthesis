@@ -4,16 +4,37 @@ import seaborn as sns
 plt.style.use("fivethirtyeight")
 
 from training import evaluate_model
-from data_loader import load, resize, random_crop, normalize
+from data_loader import normalize
 from training import model 
 
 ckpt.restore("checkpoints/Train/ckpt-11.index")
 
+x_dimension = 256
+y_dimension = 256
+
+height = 256
+width = 256
+
 def special_loader(image_file):
-    input_image, real_image = load(image_file)
+    image = tf.io.read_file(image_file)
+    image = tf.image.decode_jpeg(image)
+
+    w = tf.shape(image)[1]
+
+    w = w // 2
+    input_image = image[:, :w, :]
+    real_image = image[:, w:, :]
+
+    input_image = tf.cast(input_image, tf.float32)
+    real_image = tf.cast(real_image, tf.float32)
+    
     input_image, real_image = resize(input_image, real_image,
-                                    256, 256)
-    input_image, real_image = normalize(input_image, real_image)
+                                    x_dimension, y_dimension)
+    (input_image, real_image) = (tf.image.resize(input_image, [height, width],
+                                method=tf.image.ResizeMethod.NEAREST_NEIGHBOR),
+                              real_image = tf.image.resize(real_image, [height, width],
+                               method=tf.image.ResizeMethod.NEAREST_NEIGHBOR))
+    (input_image, real_image) = normalize(input_image,real_image)
     return input_image, real_image
 
 Path_Input = "./Testing/"
